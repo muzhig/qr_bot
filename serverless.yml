@@ -1,0 +1,41 @@
+service: ${env:SERVICE_NAME}
+frameworkVersion: '3'
+useDotenv: true
+variablesResolutionMode: 20210326
+configValidationMode: error
+
+provider:
+  name: aws
+  profile: ${env:AWS_PROFILE, "default"}
+  region: ${env:AWS_REGION, "us-east-1"}
+  runtime: python3.9
+  lambdaHashingVersion: 20201221
+  memorySize: 128
+  environment:
+    TELEGRAM_BOT_TOKEN: ${env:TELEGRAM_BOT_TOKEN}
+    SENTRY_DSN: ${env:SENTRY_DSN}
+    STAGE: ${opt:stage, 'dev'}
+
+plugins:
+  - serverless-python-requirements
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!package-lock.json'
+
+
+functions:
+  telegramWebhook:
+    handler: main.telegram_webhook_handler
+    events:
+      - http:
+          path: ${env:TELEGRAM_WEBHOOK_ENDPOINT, "/telegram"}
+          method: POST
+    reservedConcurrency: 1
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+#    noDeploy:
+#      - pre-commit
+#    pipCmdExtraArgs:
+#      - --use-feature=2020-resolver
