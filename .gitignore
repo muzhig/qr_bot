@@ -22,7 +22,7 @@ var/
 #env variables
 .env
 .env.*
-!template/.env
+!.env.template
 node_modules
 .idea/
 venv/
